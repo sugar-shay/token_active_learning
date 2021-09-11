@@ -41,14 +41,18 @@ with open(data_directory, 'rb') as f:
     
 encoder_name = 'bert-base-uncased'
 
+
+
+
+tokenizer = NER_tokenizer(unique_labels, max_length=64, tokenizer_name = encoder_name)
+
+token_labels = np.array([tokenizer.tag2id[label] for label in train_data['train_labels']])
+
 train_dataset = Token_Level_Dataset(input_ids = train_data['input_ids'], 
                                     attention_mask = train_data['attention_mask'], 
                                     token_idxs = train_data['token_idxs'],
                                     token_label_masks= train_data['token_label_masks'], 
-                                    labels=train_data['train_labels'])
-
-
-tokenizer = NER_tokenizer(unique_labels, max_length=64, tokenizer_name = encoder_name)
+                                    labels=token_labels)
 
 val_dataset = tokenizer.tokenize_and_encode_labels(val_data)
 test_dataset = tokenizer.tokenize_and_encode_labels(test_data)
@@ -61,6 +65,6 @@ model = NER_ACTIVE_LEARNER(num_classes = len(tokenizer.id2tag),
                  encoder_name = encoder_name,
                  save_fp='bert_token_memc.pt')
 
-BATCH_SIZE = 64*32
+BATCH_SIZE = 256#64*32
 
 model = train_LitModel(model, train_dataset, val_dataset, max_epochs=10, batch_size=BATCH_SIZE, patience = 3, num_gpu=1)

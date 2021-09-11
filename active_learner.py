@@ -65,7 +65,7 @@ class NER_ACTIVE_LEARNER(pl.LightningModule):
         return outputs
 
     def configure_optimizers(self):
-        optimizer = AdamW(self.parameters(), lr=3e-6)
+        optimizer = AdamW(self.parameters(), lr=3e-8)
         return optimizer
 
     def training_step(self, batch, batch_idx):
@@ -112,13 +112,13 @@ class NER_ACTIVE_LEARNER(pl.LightningModule):
             
             #token logits has shape [1, # classes]
             token_logits = seq_active_logits[token_idx,:]
-            
+            token_logits = torch.reshape(token_logits, (1, token_logits.shape[0]))
             active_token_logits.append(token_logits)
         
         active_token_logits = torch.cat(active_token_logits, dim=0)
         active_token_labels = batch['token_labels']
-        print('token logits shape: ', token_logits.shape)
-        print('label shape: ', active_token_labels.shape)
+        #print('active token logits shape: ', active_token_logits.shape)
+        #print('active label shape: ', active_token_labels.shape)
         
         
         

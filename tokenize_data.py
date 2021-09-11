@@ -116,7 +116,7 @@ class Token_Level_Dataset(torch.utils.data.Dataset):
         self.attention_mask = torch.tensor(attention_mask)
         self.token_idxs = torch.tensor(token_idxs)
         self.token_label_masks = torch.tensor(token_label_masks)
-        self.labels = labels
+        self.labels = torch.LongTensor(labels)
         
     def __getitem__(self, idx):
         item = {}

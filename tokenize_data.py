@@ -110,24 +110,26 @@ class NER_Dataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.encodings['input_ids'])
     
-class Sample_Dataset(torch.utils.data.Dataset):
-    def __init__(self, encodings, X_conf, labels=None):
-        self.encodings = encodings
-        self.X_conf = X_conf
+class Token_Level_Dataset(torch.utils.data.Dataset):
+    def __init__(self, input_ids, attention_mask, token_idxs, token_label_masks, labels=None):
+        self.input_ids = torch.tensor(input_ids)
+        self.attention_mask = torch.tensor(attention_mask)
+        self.token_idxs = torch.tensor(token_idxs)
+        self.token_label_masks = torch.tensor(token_label_masks)
         self.labels = labels
         
     def __getitem__(self, idx):
         item = {}
-        item['input_ids'] = self.encodings['input_ids'][idx]
-        item['attention_mask'] = self.encodings['attention_mask'][idx]
-        item['token_idxs'] = self.encodings['token_idxs'][idx]
-        item['X_conf'] = self.X_conf[idx]
+        item['input_ids'] = self.input_ids[idx, :]
+        item['attention_mask'] = self.attention_mask[idx, :]
+        item['token_idxs'] = self.token_idxs[idx]
+        item['token_label_masks'] = self.token_label_masks[idx,:]
         if self.labels is not None:
-            item['labels'] = self.labels[idx]
+            item['token_labels'] = self.labels[idx]
         return item
 
     def __len__(self):
-        return len(self.encodings['input_ids'])
+        return self.input_ids.shape[0]
         
 
 

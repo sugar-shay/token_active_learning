@@ -148,7 +148,7 @@ class LIT_NER(pl.LightningModule):
         attention_masks = np.concatenate(attention_masks, axis=0)
         token_idxs = np.concatenate(token_idxs, axis=0)
         token_label_masks = np.concatenate(token_label_masks, axis=0)
-        
+                
         #EVERYTHING BELOW HAS SHAPE [TOTAL # TOKENS, :]
         #print()
         #print('Active Logits shape: ', active_logits.shape)
@@ -214,7 +214,7 @@ class LIT_NER(pl.LightningModule):
             self.token_inputs['attention_mask'] =  np.concatenate([x for x in self.token_inputs['attention_mask']])
             self.token_inputs['token_idxs'] =  np.concatenate([x for x in self.token_inputs['token_idxs']])
             self.token_inputs['train_labels'] =  np.concatenate([x for x in self.token_inputs['train_labels']])
-            self.token_inputs['train_label_masks'] =  np.concatenate([x for x in self.token_inputs['token_label_masks']])
+            self.token_inputs['token_label_masks'] =  np.concatenate([x for x in self.token_inputs['token_label_masks']])
             
             print()
             print('train_labels shape: ', self.token_inputs['train_labels'].shape)

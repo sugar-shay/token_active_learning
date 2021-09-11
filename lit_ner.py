@@ -49,7 +49,8 @@ class LIT_NER(pl.LightningModule):
         self.token_inputs = {'input_ids':[],
                              'attention_mask':[],
                              'token_idxs':[],
-                             'train_labels':[]}
+                             'train_labels':[],
+                             'token_label_masks': []}
 
         self.save_fp = save_fp
         self.loss_func = nn.CrossEntropyLoss()
@@ -106,7 +107,7 @@ class LIT_NER(pl.LightningModule):
         #print('Label Mask: ', label_masks)
         
         active_logits, active_labels = [], []
-        input_ids, attention_masks, token_idxs = [], [], []
+        input_ids, attention_masks, token_idxs, token_label_masks = [], [], [], []
         
         
         for idx in range(label_masks.shape[0]):
@@ -128,11 +129,13 @@ class LIT_NER(pl.LightningModule):
             
             input_id = np.array([input_id.detach().cpu().numpy() for i in range(seq_active_labels.shape[0])])
             attention_mask = np.array([attention_mask.detach().cpu().numpy() for i in range(seq_active_labels.shape[0])])
+            label_mask = np.array([label_mask.detach().cpu().numpy() for i in range(seq_active_labels.shape[0])])
             token_idx = np.array([i for i in range(seq_active_labels.shape[0])])
             
             input_ids.append(input_id)
             attention_masks.append(attention_mask)
             token_idxs.append(token_idx)
+            token_label_masks.append(label_mask)
             
             
             active_logits.append(seq_active_logits)
@@ -144,6 +147,7 @@ class LIT_NER(pl.LightningModule):
         input_ids = np.concatenate(input_ids, axis=0)
         attention_masks = np.concatenate(attention_masks, axis=0)
         token_idxs = np.concatenate(token_idxs, axis=0)
+        token_label_masks = np.concatenate(token_label_masks, axis=0)
         
         #EVERYTHING BELOW HAS SHAPE [TOTAL # TOKENS, :]
         #print()
@@ -209,12 +213,14 @@ class LIT_NER(pl.LightningModule):
             self.token_inputs['attention_mask'] =  np.concatenate([x for x in self.token_inputs['attention_mask']])
             self.token_inputs['token_idxs'] =  np.concatenate([x for x in self.token_inputs['token_idxs']])
             self.token_inputs['train_labels'] =  np.concatenate([x for x in self.token_inputs['train_labels']])
+            self.token_inputs['train_label_masks'] =  np.concatenate([x for x in self.token_inputs['token_label_masks']])
             
             print()
             print('train_labels shape: ', self.token_inputs['train_labels'].shape)
             print('mask shape: ', self.token_inputs['attention_mask'].shape)
             print('input id shape: ', self.token_inputs['input_ids'].shape)
             print('token idx shape: ', self.token_inputs['token_idxs'].shape)
+            print('token_label_masks shape: ', self.token_inputs['token_label_masks'].shape)
             print()
         self.log('train_loss', avg_loss)
         

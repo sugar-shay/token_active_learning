@@ -182,6 +182,7 @@ class LIT_NER(pl.LightningModule):
             self.token_inputs['attention_mask'].append(attention_masks)
             self.token_inputs['token_idxs'].append(token_idxs)
             self.token_inputs['train_labels'].append(active_labels)
+            self.token_inputs['token_label_masks'].append(token_label_masks)
             
         return {"loss": loss, 'train_loss': loss, "gt_probs": active_gt_probs, "correct": correct, 'train_acc':acc}
         
